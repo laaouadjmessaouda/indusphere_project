@@ -18,6 +18,7 @@ export const ALL_PERMISSIONS = [
   'accounting.payroll.view',      'accounting.payroll.create',      'accounting.payroll.edit',
   'accounting.taxes.view',        'accounting.taxes.create',        'accounting.taxes.edit',
   'accounting.production.view',   'accounting.production.create',   'accounting.production.edit',
+  'accounting.sales.view',        'accounting.sales.create',        'accounting.sales.edit',
   // Reports ✅ جديد
   'reports.view',      // عرض التقارير
   'reports.ai',        // تقارير الذكاء الاصطناعي
