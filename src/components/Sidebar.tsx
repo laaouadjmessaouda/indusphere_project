@@ -67,26 +67,25 @@ export default function Sidebar({ params, mobileOpen = false, onMobileClose, onC
         { href: '/erp/hr',                 icon: '👥',  label: t('hr'),                permission: 'erp.hr.view' },
       ]
     },
-    // ==================== قسم المحاسبة ====================
-    {
-      section: tAccounting('title'),
-      permission: null,
-      items: [
-        // 1. المشتريات
-        { href: '/erp/accounting/procurement/suppliers', icon: '🏭', label: tAccounting('suppliers'), permission: null },
-        { href: '/erp/accounting/procurement/invoices', icon: '📄', label: tAccounting('purchaseInvoices'), permission: null },
-        // 2. المبيعات
-        { href: '/erp/accounting/sales/customers', icon: '👥', label: tAccounting('customers'), permission: null },
-        { href: '/erp/accounting/sales/invoices', icon: '💰', label: tAccounting('salesInvoices'), permission: null },
-        { href: '/erp/accounting/sales/prices', icon: '🏷️', label: tAccounting('prices'), permission: null },
-        // 3. الإنتاج
-        { href: '/erp/accounting/production/costs', icon: '🏗️', label: tAccounting('productionCosts'), permission: null },
-        // 5. الضرائب
-        { href: '/erp/accounting/taxes/settings', icon: '⚙️', label: tAccounting('taxSettings'), permission: null },
-        { href: '/erp/accounting/taxes/declarations', icon: '📋', label: tAccounting('taxDeclarations'), permission: null },
-        // ❌ تم حذف روابط التقارير من هنا (تم دمجها في صفحة /reports)
-      ]
-    },
+ // ==================== قسم المحاسبة ====================
+{
+  section: tAccounting('title'),
+  permission: 'accounting.suppliers.view',
+  items: [
+    // 1. المشتريات
+    { href: '/erp/accounting/procurement/suppliers', icon: '🏭', label: tAccounting('suppliers'), permission: 'accounting.suppliers.view' },
+    { href: '/erp/accounting/procurement/invoices', icon: '📄', label: tAccounting('purchaseInvoices'), permission: 'accounting.invoices.view' },
+    // 2. المبيعات
+    { href: '/erp/accounting/sales/customers', icon: '👥', label: tAccounting('customers'), permission: 'accounting.customers.view' },
+    { href: '/erp/accounting/sales/invoices', icon: '💰', label: tAccounting('salesInvoices'), permission: 'accounting.invoices.view' },
+    { href: '/erp/accounting/sales/prices', icon: '🏷️', label: tAccounting('prices'), permission: 'accounting.suppliers.view' },
+    // 3. الإنتاج
+    { href: '/erp/accounting/production/costs', icon: '🏗️', label: tAccounting('productionCosts'), permission: 'accounting.production.view' },
+    // 4. الضرائب
+    { href: '/erp/accounting/taxes/settings', icon: '⚙️', label: tAccounting('taxSettings'), permission: 'accounting.taxes.view' },
+    { href: '/erp/accounting/taxes/declarations', icon: '📋', label: tAccounting('taxDeclarations'), permission: 'accounting.taxes.view' },
+  ]
+},
     // ======================================================================
     {
       section: t('reports'),
