@@ -21,16 +21,26 @@ interface User {
 }
 
 const permissionGroups = [
+  // CMMS
   { label: 'CMMS — الأصول',      prefix: 'cmms.assets' },
   { label: 'CMMS — أوامر العمل', prefix: 'cmms.workorders' },
   { label: 'CMMS — قطع الغيار',  prefix: 'cmms.spareparts' },
   { label: 'CMMS — طلبات صيانة', prefix: 'cmms.maintenance' },
   { label: 'CMMS — صيانة وقائية',prefix: 'cmms.preventive' },
+  // ERP
   { label: 'ERP — المالية',       prefix: 'erp.finance' },
   { label: 'ERP — الإنتاج',       prefix: 'erp.production' },
   { label: 'ERP — المخزون',       prefix: 'erp.inventory' },
   { label: 'ERP — المشتريات',     prefix: 'erp.procurement' },
   { label: 'ERP — الموارد البشرية',prefix: 'erp.hr' },
+  // Accounting
+  { label: 'المحاسبة — الموردين',    prefix: 'accounting.suppliers' },
+  { label: 'المحاسبة — العملاء',    prefix: 'accounting.customers' },
+  { label: 'المحاسبة — الفواتير',   prefix: 'accounting.invoices' },
+  { label: 'المحاسبة — الرواتب',    prefix: 'accounting.payroll' },
+  { label: 'المحاسبة — الضرائب',    prefix: 'accounting.taxes' },
+  { label: 'المحاسبة — تكاليف الإنتاج', prefix: 'accounting.production' },
+  // Settings
   { label: 'الإعدادات — المستخدمين',prefix: 'settings.users' },
   { label: 'الإعدادات — الأدوار',  prefix: 'settings.roles' },
 ]
