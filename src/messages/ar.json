@@ -143,7 +143,10 @@
     "title": "الإعدادات",
     "users": "المستخدمون",
     "roles": "الأدوار والصلاحيات",
-    "changePassword": "تغيير كلمة المرور"
+    "changePassword": "تغيير كلمة المرور",
+    "editUser": "تعديل مستخدم",
+"deactivate": "تعطيل",
+"activate": "تفعيل"
   },
   "Common": {
     "save": "حفظ",

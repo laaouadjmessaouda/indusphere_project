@@ -143,7 +143,10 @@
     "title": "Paramètres",
     "users": "Utilisateurs",
     "roles": "Rôles et permissions",
-    "changePassword": "Changer le mot de passe"
+    "changePassword": "Changer le mot de passe",
+    "editUser": "Modifier l'utilisateur",
+"deactivate": "Désactiver",
+"activate": "Activer"
   },
   "Common": {
     "save": "Enregistrer",

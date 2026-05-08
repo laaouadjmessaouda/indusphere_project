@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { ALL_PERMISSIONS } from '@/lib/permissions'
 import { useLocale, useTranslations } from 'next-intl'
 import styles from '@/styles/pages/settings.module.css'
@@ -46,6 +47,7 @@ const permissionGroups = [
 ]
 
 export default function SettingsPage() {
+  const router = useRouter()
   const locale = useLocale()
   const t = useTranslations('Common')
   const tSettings = useTranslations('Settings')
@@ -130,6 +132,11 @@ export default function SettingsPage() {
       body: JSON.stringify({ isActive: !isActive }),
     })
     fetchUsers()
+  }
+
+  // ✅ دالة لتعديل المستخدم (الانتقال إلى صفحة التعديل)
+  const handleEditUser = (userId: string) => {
+    router.push(`/${locale}/settings/users/${userId}/edit`)
   }
 
   const handleDeleteUser = async (id: string) => {
@@ -269,7 +276,8 @@ export default function SettingsPage() {
       })}
     </div>
   )
-    return (
+  
+  return (
     <div className={styles.page} dir="rtl">
       <div className={styles.container}>
 
@@ -368,7 +376,7 @@ export default function SettingsPage() {
                     <th className={styles.tableHeaderCell}>{t('status')}</th>
                     <th className={styles.tableHeaderCell}>{t('createdAt')}</th>
                     <th className={styles.tableHeaderCell}>{t('actions')}</th>
-                   </tr>
+                  </tr>
                 </thead>
                 <tbody>
                   {loading ? (
@@ -390,12 +398,23 @@ export default function SettingsPage() {
                         <td className={styles.tableCell}>{new Date(user.createdAt).toLocaleDateString('ar-DZ')}</td>
                         <td className={styles.tableCell}>
                           <div className={styles.actionButtons}>
-                            <button onClick={() => handleToggleUser(user._id, user.isActive)}
-                              className={`${styles.actionBtn} ${styles.actionEdit}`}>
+                            {/* ✅ زر تعديل المستخدم */}
+                            <button 
+                              onClick={() => handleEditUser(user._id)}
+                              className={`${styles.actionBtn} ${styles.actionEdit}`}
+                            >
+                              {t('edit')}
+                            </button>
+                            <button 
+                              onClick={() => handleToggleUser(user._id, user.isActive)}
+                              className={`${styles.actionBtn} ${styles.actionEdit}`}
+                            >
                               {user.isActive ? t('deactivate') : t('activate')}
                             </button>
-                            <button onClick={() => handleDeleteUser(user._id)}
-                              className={`${styles.actionBtn} ${styles.actionDelete}`}>
+                            <button 
+                              onClick={() => handleDeleteUser(user._id)}
+                              className={`${styles.actionBtn} ${styles.actionDelete}`}
+                            >
                               {t('delete')}
                             </button>
                           </div>
@@ -497,7 +516,7 @@ export default function SettingsPage() {
                     {role.permissions.length} {t('permissions')}
                   </div>
                   <div className={styles.moduleTags}>
-                    {['cmms', 'erp', 'settings'].map(module => {
+                    {['cmms', 'erp', 'settings', 'accounting'].map(module => {
                       const count = role.permissions.filter(p => p.startsWith(module)).length
                       if (count === 0) return null
                       return (

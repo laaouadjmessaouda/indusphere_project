@@ -143,7 +143,10 @@
     "title": "Settings",
     "users": "Users",
     "roles": "Roles & Permissions",
-    "changePassword": "Change Password"
+    "changePassword": "Change Password",
+    "editUser": "Edit User",
+"deactivate": "Deactivate",
+"activate": "Activate"
   },
   "Common": {
     "save": "Save",
