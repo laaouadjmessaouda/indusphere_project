@@ -11,13 +11,17 @@ export const ALL_PERMISSIONS = [
   'erp.inventory.view',    'erp.inventory.create',    'erp.inventory.edit',
   'erp.procurement.view',  'erp.procurement.create',  'erp.procurement.edit',
   'erp.hr.view',           'erp.hr.create',           'erp.hr.edit',
-  // Accounting ✅ جديد
+  // Accounting
   'accounting.suppliers.view',    'accounting.suppliers.create',    'accounting.suppliers.edit',
   'accounting.customers.view',    'accounting.customers.create',    'accounting.customers.edit',
   'accounting.invoices.view',     'accounting.invoices.create',     'accounting.invoices.edit',
   'accounting.payroll.view',      'accounting.payroll.create',      'accounting.payroll.edit',
   'accounting.taxes.view',        'accounting.taxes.create',        'accounting.taxes.edit',
   'accounting.production.view',   'accounting.production.create',   'accounting.production.edit',
+  // Reports ✅ جديد
+  'reports.view',      // عرض التقارير
+  'reports.ai',        // تقارير الذكاء الاصطناعي
+  'reports.export',    // تصدير التقارير
   // Settings
   'settings.users.view',   'settings.users.create',   'settings.users.edit',
   'settings.roles.view',   'settings.roles.create',   'settings.roles.edit',
@@ -28,7 +32,7 @@ export type Permission = typeof ALL_PERMISSIONS[number]
 export const DEFAULT_ROLES = [
   {
     name: 'Admin',
-    permissions: ALL_PERMISSIONS,
+    permissions: ALL_PERMISSIONS, // ✅ Admin لديه جميع الصلاحيات بما فيها التقارير
     isDefault: false,
   },
   {
@@ -42,8 +46,12 @@ export const DEFAULT_ROLES = [
     isDefault: false,
   },
   {
-    name: 'Accountant', // ✅ جديد
-    permissions: ALL_PERMISSIONS.filter(p => p.startsWith('accounting')),
+    name: 'Accountant',
+    permissions: [
+      ...ALL_PERMISSIONS.filter(p => p.startsWith('accounting')),
+      'reports.view',  // ✅ Accountant يرى التقارير
+      'reports.ai',    // ✅ Accountant يرى تقارير AI
+    ],
     isDefault: false,
   },
   {
@@ -58,7 +66,10 @@ export const DEFAULT_ROLES = [
   },
   {
     name: 'Viewer',
-    permissions: ALL_PERMISSIONS.filter(p => p.endsWith('.view')),
+    permissions: [
+      ...ALL_PERMISSIONS.filter(p => p.endsWith('.view')),
+      'reports.view',  // ✅ Viewer يرى التقارير (عرض فقط)
+    ],
     isDefault: true,
   },
 ]
