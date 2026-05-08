@@ -4,6 +4,7 @@
 import { use } from 'react';
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import { usePermissions } from '@/hooks/usePermissions';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import styles from '@/styles/pages/reports.module.css';
@@ -586,6 +587,7 @@ export default function ReportsPage({ params }: Props) {
   const { locale } = use(params);
   const t = useTranslations('Reports');
   const tCommon = useTranslations('Common');
+  const { can } = usePermissions();
   
   const [activeTab, setActiveTab] = useState<TabType>('ai');
   const [aiData, setAiData] = useState<AIReportData | null>(null);
@@ -616,13 +618,23 @@ export default function ReportsPage({ params }: Props) {
     fetchAIReport(locale);
   }, [locale]);
 
-  const tabs: { id: TabType; label: string; icon: string }[] = [
-    { id: 'ai', label: t('aiTab'), icon: '🤖' },
-    { id: 'sales', label: t('salesTab'), icon: '💰' },
-    { id: 'production', label: t('productionTab'), icon: '🏭' },
-    { id: 'payroll', label: t('payrollTab'), icon: '👥' },
-    { id: 'taxes', label: t('taxesTab'), icon: '📑' },
+  // ✅ التبويبات مع صلاحياتها
+  const allTabs: { id: TabType; label: string; icon: string; permission: string }[] = [
+    { id: 'ai', label: t('aiTab'), icon: '🤖', permission: 'reports.ai' },
+    { id: 'sales', label: t('salesTab'), icon: '💰', permission: 'accounting.sales.view' },
+    { id: 'production', label: t('productionTab'), icon: '🏭', permission: 'accounting.production.view' },
+    { id: 'payroll', label: t('payrollTab'), icon: '👥', permission: 'accounting.payroll.view' },
+    { id: 'taxes', label: t('taxesTab'), icon: '📑', permission: 'accounting.taxes.view' },
   ];
+
+  const tabs = allTabs.filter(tab => can(tab.permission));
+
+  // تعيين التبويب النشط الأول
+  useEffect(() => {
+    if (tabs.length > 0 && !tabs.find(t => t.id === activeTab)) {
+      setActiveTab(tabs[0].id as TabType);
+    }
+  }, [tabs, activeTab]);
 
   return (
     <div className={styles.page} dir="rtl">
@@ -660,114 +672,123 @@ export default function ReportsPage({ params }: Props) {
           </div>
         )}
 
-        <div className={styles.tabsContainer}>
-          {tabs.map((tab) => (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`${styles.tabButton} ${activeTab === tab.id ? styles.tabActive : ''}`}>
-              <span className={styles.tabIcon}>{tab.icon}</span>
-              <span>{tab.label}</span>
-            </button>
-          ))}
-        </div>
+        {tabs.length > 0 ? (
+          <>
+            <div className={styles.tabsContainer}>
+              {tabs.map((tab) => (
+                <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`${styles.tabButton} ${activeTab === tab.id ? styles.tabActive : ''}`}>
+                  <span className={styles.tabIcon}>{tab.icon}</span>
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </div>
 
-        <div className={styles.tabContent}>
-          {activeTab === 'ai' && (
-            <>
-              {loading && (
-                <div className={styles.loadingCard}>
-                  <div className={styles.loadingIcon}>🤖</div>
-                  <p className={styles.loadingTitle}>{t('analyzing')}</p>
-                  <p className={styles.loadingSubtitle}>{t('aiDescription')}</p>
-                </div>
-              )}
-              {!loading && aiData && (
+            <div className={styles.tabContent}>
+              {activeTab === 'ai' && (
                 <>
-                  <div className={styles.overallCard}>
-                    <div className={styles.scoreCircleWrapper}>
-                      <div className={`${styles.scoreCircle} ${scoreClass(aiData.overallScore)}`}>
-                        <span className={styles.scoreNumber}>{aiData.overallScore}</span>
-                        <span className={styles.scoreMax}>/ 100</span>
+                  {loading && (
+                    <div className={styles.loadingCard}>
+                      <div className={styles.loadingIcon}>🤖</div>
+                      <p className={styles.loadingTitle}>{t('analyzing')}</p>
+                      <p className={styles.loadingSubtitle}>{t('aiDescription')}</p>
+                    </div>
+                  )}
+                  {!loading && aiData && (
+                    <>
+                      <div className={styles.overallCard}>
+                        <div className={styles.scoreCircleWrapper}>
+                          <div className={`${styles.scoreCircle} ${scoreClass(aiData.overallScore)}`}>
+                            <span className={styles.scoreNumber}>{aiData.overallScore}</span>
+                            <span className={styles.scoreMax}>/ 100</span>
+                          </div>
+                          <span className={`${styles.badge} ${statusClass(aiData.overallStatus, t)}`}>{aiData.overallStatus}</span>
+                        </div>
+                        <div className={styles.summaryBlock}>
+                          <h2 className={styles.summaryTitle}>{t('executiveSummary')}</h2>
+                          <p className={styles.summaryText}>{aiData.executiveSummary}</p>
+                        </div>
                       </div>
-                      <span className={`${styles.badge} ${statusClass(aiData.overallStatus, t)}`}>{aiData.overallStatus}</span>
-                    </div>
-                    <div className={styles.summaryBlock}>
-                      <h2 className={styles.summaryTitle}>{t('executiveSummary')}</h2>
-                      <p className={styles.summaryText}>{aiData.executiveSummary}</p>
-                    </div>
-                  </div>
-                  {aiData.topPriorities.length > 0 && (
-                    <div className={styles.prioritiesCard}>
-                      <h3 className={styles.prioritiesTitle}>🚨 {t('topPriorities')}</h3>
-                      <div className={styles.prioritiesList}>
-                        {aiData.topPriorities.map((p, i) => (
-                          <div key={i} className={styles.priorityItem}>
-                            <span className={styles.priorityNumber}>{i + 1}</span>
-                            <span className={styles.priorityText}>{p}</span>
+                      {aiData.topPriorities.length > 0 && (
+                        <div className={styles.prioritiesCard}>
+                          <h3 className={styles.prioritiesTitle}>🚨 {t('topPriorities')}</h3>
+                          <div className={styles.prioritiesList}>
+                            {aiData.topPriorities.map((p, i) => (
+                              <div key={i} className={styles.priorityItem}>
+                                <span className={styles.priorityNumber}>{i + 1}</span>
+                                <span className={styles.priorityText}>{p}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <div className={styles.sectionsGrid}>
+                        {aiData.sections.map((section, i) => (
+                          <div key={i} className={`${styles.sectionCard}`}>
+                            <div className={styles.sectionHeader}>
+                              <div className={styles.sectionTitleRow}>
+                                <span className={styles.sectionIcon}>{section.icon}</span>
+                                <h3 className={styles.sectionTitle}>{section.title}</h3>
+                              </div>
+                              <div className={styles.sectionScore}>
+                                <span className={`${styles.sectionScoreNum} ${scoreClass(section.score)}`}>{section.score}%</span>
+                                <span className={`${styles.badge} ${statusClass(section.status, t)}`}>{section.status}</span>
+                              </div>
+                            </div>
+                            <div className={styles.scoreBar}>
+                              <div className={`${styles.scoreBarFill} ${scoreClass(section.score)}`} style={{ width: `${section.score}%` }} />
+                            </div>
+                            <p className={styles.sectionAnalysis}>{section.analysis}</p>
+                            <div className={styles.sectionDetails}>
+                              {section.highlights.length > 0 && (
+                                <div>
+                                  <p className={styles.detailLabelSuccess}>✅ {t('highlights')}</p>
+                                  {section.highlights.map((h, j) => <p key={j} className={styles.detailItem}>• {h}</p>)}
+                                </div>
+                              )}
+                              {section.issues.length > 0 && (
+                                <div>
+                                  <p className={styles.detailLabelDanger}>⚠️ {t('issues')}</p>
+                                  {section.issues.map((issue, j) => <p key={j} className={styles.detailItem}>• {issue}</p>)}
+                                </div>
+                              )}
+                            </div>
+                            {section.recommendations.length > 0 && (
+                              <div className={styles.recommendations}>
+                                <p className={styles.detailLabelWarning}>🔧 {t('recommendations')}</p>
+                                {section.recommendations.map((r, j) => <p key={j} className={styles.detailItem}>• {r}</p>)}
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
-                    </div>
+                      {aiData.forecast && (
+                        <div className={styles.forecastCard}>
+                          <h3 className={styles.forecastTitle}>🔮 {t('forecast')}</h3>
+                          <p className={styles.forecastText}>{aiData.forecast}</p>
+                        </div>
+                      )}
+                    </>
                   )}
-                  <div className={styles.sectionsGrid}>
-                    {aiData.sections.map((section, i) => (
-                      <div key={i} className={`${styles.sectionCard}`}>
-                        <div className={styles.sectionHeader}>
-                          <div className={styles.sectionTitleRow}>
-                            <span className={styles.sectionIcon}>{section.icon}</span>
-                            <h3 className={styles.sectionTitle}>{section.title}</h3>
-                          </div>
-                          <div className={styles.sectionScore}>
-                            <span className={`${styles.sectionScoreNum} ${scoreClass(section.score)}`}>{section.score}%</span>
-                            <span className={`${styles.badge} ${statusClass(section.status, t)}`}>{section.status}</span>
-                          </div>
-                        </div>
-                        <div className={styles.scoreBar}>
-                          <div className={`${styles.scoreBarFill} ${scoreClass(section.score)}`} style={{ width: `${section.score}%` }} />
-                        </div>
-                        <p className={styles.sectionAnalysis}>{section.analysis}</p>
-                        <div className={styles.sectionDetails}>
-                          {section.highlights.length > 0 && (
-                            <div>
-                              <p className={styles.detailLabelSuccess}>✅ {t('highlights')}</p>
-                              {section.highlights.map((h, j) => <p key={j} className={styles.detailItem}>• {h}</p>)}
-                            </div>
-                          )}
-                          {section.issues.length > 0 && (
-                            <div>
-                              <p className={styles.detailLabelDanger}>⚠️ {t('issues')}</p>
-                              {section.issues.map((issue, j) => <p key={j} className={styles.detailItem}>• {issue}</p>)}
-                            </div>
-                          )}
-                        </div>
-                        {section.recommendations.length > 0 && (
-                          <div className={styles.recommendations}>
-                            <p className={styles.detailLabelWarning}>🔧 {t('recommendations')}</p>
-                            {section.recommendations.map((r, j) => <p key={j} className={styles.detailItem}>• {r}</p>)}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                  {aiData.forecast && (
-                    <div className={styles.forecastCard}>
-                      <h3 className={styles.forecastTitle}>🔮 {t('forecast')}</h3>
-                      <p className={styles.forecastText}>{aiData.forecast}</p>
+                  {!loading && !aiData && (
+                    <div className={styles.emptyState}>
+                      <div className={styles.emptyIcon}>📊</div>
+                      <p className={styles.emptyText}>{t('clickToAnalyze')}</p>
                     </div>
                   )}
                 </>
               )}
-              {!loading && !aiData && (
-                <div className={styles.emptyState}>
-                  <div className={styles.emptyIcon}>📊</div>
-                  <p className={styles.emptyText}>{t('clickToAnalyze')}</p>
-                </div>
-              )}
-            </>
-          )}
-          {activeTab === 'sales' && <SalesReport startDate={startDate} endDate={endDate} t={t} tCommon={tCommon} />}
-          {activeTab === 'production' && <ProductionReport startDate={startDate} endDate={endDate} t={t} tCommon={tCommon} />}
-          {activeTab === 'payroll' && <PayrollReport startDate={startDate} endDate={endDate} t={t} tCommon={tCommon} />}
-          {activeTab === 'taxes' && <TaxReport startDate={startDate} endDate={endDate} t={t} tCommon={tCommon} />}
-        </div>
+              {activeTab === 'sales' && <SalesReport startDate={startDate} endDate={endDate} t={t} tCommon={tCommon} />}
+              {activeTab === 'production' && <ProductionReport startDate={startDate} endDate={endDate} t={t} tCommon={tCommon} />}
+              {activeTab === 'payroll' && <PayrollReport startDate={startDate} endDate={endDate} t={t} tCommon={tCommon} />}
+              {activeTab === 'taxes' && <TaxReport startDate={startDate} endDate={endDate} t={t} tCommon={tCommon} />}
+            </div>
+          </>
+        ) : (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>🔒</div>
+            <p className={styles.emptyText}>لا توجد صلاحيات لعرض التقارير</p>
+          </div>
+        )}
       </div>
     </div>
   );

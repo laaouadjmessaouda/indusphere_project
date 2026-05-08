@@ -86,12 +86,12 @@ export default function Sidebar({ params, mobileOpen = false, onMobileClose, onC
     { href: '/erp/accounting/taxes/declarations', icon: '📋', label: tAccounting('taxDeclarations'), permission: 'accounting.taxes.view' },
   ]
 },
-    // ======================================================================
+          // ======================================================================
     {
       section: t('reports'),
-      permission: null,
+      permission: 'reports.view',
       items: [
-        { href: '/reports', icon: '📈', label: t('reportsAnalytics'), permission: null },
+        { href: '/reports', icon: '📈', label: t('reportsAnalytics'), permission: 'reports.view' },
       ]
     },
   ];
