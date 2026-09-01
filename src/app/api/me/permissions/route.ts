@@ -23,11 +23,13 @@ export async function GET() {
       })
     }
 
-    const role = user.roleId as { permissions: string[] }
+    const role = user.roleId as { name: string; permissions: string[] }
+    const isAdmin = role.name === 'Admin' || role.permissions?.includes('*');
+    
     return NextResponse.json({ 
       success: true, 
       permissions: role.permissions,
-      isAdmin: false,
+      isAdmin: isAdmin,
     })
 
   } catch (error: unknown) {
