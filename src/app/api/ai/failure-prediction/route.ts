@@ -81,7 +81,7 @@ ${JSON.stringify(assetsData, null, 2)}
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 2048,
       temperature: 0.3,
-    })
+    })// force rebuild
 
     const text = response.choices[0]?.message?.content || '{}'
     
