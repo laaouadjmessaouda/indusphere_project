@@ -190,7 +190,7 @@ Provide the report in JSON format only without any additional text:
     }
 
     const response = await client.chat.completions.create({
-      model: 'llama-3.1-8b-instant',
+      model: 'openai/gpt-oss-120b',
       messages: [{ role: 'user', content: promptText }],
       max_tokens: 2048,
       temperature: 0.4,
