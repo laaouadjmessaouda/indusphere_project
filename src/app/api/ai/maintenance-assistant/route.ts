@@ -55,7 +55,7 @@ export async function POST(request: Request) {
 
     // ✅ استخدم نموذجاً متوفراً
     const response = await client.chat.completions.create({
-      model: 'llama3-70b-8192',  // ✅ تم التعديل هنا
+      model: 'llama-3.1-8b-instant',  // ✅ تم التعديل هنا
       messages,
       max_tokens: 1024,
       temperature: 0.7,

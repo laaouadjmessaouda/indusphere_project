@@ -77,7 +77,7 @@ ${JSON.stringify(assetsData, null, 2)}
 }`
 
     const response = await client.chat.completions.create({
-      model: 'llama3-70b-8192', // ✅ تم التعديل هنا
+      model: 'llama-3.1-8b-instant', // ✅ تم التعديل هنا
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 2048,
       temperature: 0.3,
