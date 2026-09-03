@@ -77,11 +77,11 @@ ${JSON.stringify(assetsData, null, 2)}
 }`
 
     const response = await client.chat.completions.create({
-      model: 'mixtral-8x7b-32768', // ✅ تم التعديل هنا
+      model: 'llama3-70b-8192', // ✅ تم التعديل هنا
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 2048,
       temperature: 0.3,
-    })// force rebuild
+    })
 
     const text = response.choices[0]?.message?.content || '{}'
     

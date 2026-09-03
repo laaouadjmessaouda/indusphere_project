@@ -190,7 +190,7 @@ Provide the report in JSON format only without any additional text:
     }
 
     const response = await client.chat.completions.create({
-      model: 'mixtral-8x7b-32768',
+      model: 'llama3-70b-8192',
       messages: [{ role: 'user', content: promptText }],
       max_tokens: 2048,
       temperature: 0.4,
