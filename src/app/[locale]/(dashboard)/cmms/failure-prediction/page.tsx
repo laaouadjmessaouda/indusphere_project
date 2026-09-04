@@ -1,9 +1,14 @@
 // src/app/[locale]/(dashboard)/cmms/failure-prediction/page.tsx
 'use client';
 
+import { use } from 'react';
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import styles from '@/styles/pages/failure-prediction.module.css';
+
+type Props = {
+  params: Promise<{ locale: string }>;
+};
 
 interface Prediction {
   assetId: string;
@@ -22,28 +27,28 @@ interface PredictionData {
 
 const riskConfig = {
   critical: { 
-    label: 'حرج', 
+    label: 'critical', 
     color: '#ef4444', 
     bg: 'rgba(239,68,68,0.1)', 
     border: 'rgba(239,68,68,0.3)', 
     icon: '🔴' 
   },
   high: { 
-    label: 'عالي', 
+    label: 'high', 
     color: '#f97316', 
     bg: 'rgba(249,115,22,0.1)', 
     border: 'rgba(249,115,22,0.3)', 
     icon: '🟠' 
   },
   medium: { 
-    label: 'متوسط', 
+    label: 'medium', 
     color: '#f59e0b', 
     bg: 'rgba(245,158,11,0.1)', 
     border: 'rgba(245,158,11,0.3)', 
     icon: '🟡' 
   },
   low: { 
-    label: 'منخفض', 
+    label: 'low', 
     color: '#10b981', 
     bg: 'rgba(16,185,129,0.1)', 
     border: 'rgba(16,185,129,0.3)', 
@@ -53,12 +58,17 @@ const riskConfig = {
 
 type FilterType = 'all' | 'critical' | 'high' | 'medium' | 'low';
 
-export default function FailurePredictionPage() {
+export default function FailurePredictionPage({ params }: Props) {
+  const { locale } = use(params);
   const t = useTranslations('CMMS');
+  const tCommon = useTranslations('Common');
+  
   const [data, setData] = useState<PredictionData | null>(null);
   const [loading, setLoading] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [filter, setFilter] = useState<FilterType>('all');
+
+  const isRTL = locale === 'ar';
 
   const fetchPredictions = async () => {
     setLoading(true);
@@ -109,6 +119,26 @@ export default function FailurePredictionPage() {
     }
   };
 
+  const getRiskLabel = (level: string) => {
+    switch (level) {
+      case 'critical': return t('riskCritical');
+      case 'high': return t('riskHigh');
+      case 'medium': return t('riskMedium');
+      case 'low': return t('riskLow');
+      default: return level;
+    }
+  };
+
+  const getUrgencyLabel = (urgency: string) => {
+    switch (urgency) {
+      case 'فوري': return t('urgencyImmediate');
+      case 'خلال أسبوع': return t('urgencyWeek');
+      case 'خلال شهر': return t('urgencyMonth');
+      case 'منخفض': return t('urgencyLow');
+      default: return urgency;
+    }
+  };
+
   return (
     <div className={styles.page}>
       <div className={styles.container}>
@@ -120,11 +150,11 @@ export default function FailurePredictionPage() {
               <h1 className={styles.title}>{t('failurePrediction')}</h1>
             </div>
             <p className={styles.description}>
-              تحليل ذكي لبيانات الأصول للتنبؤ بالأعطال المحتملة
+              {t('failurePredictionDescription')}
             </p>
             {lastUpdated && (
               <p className={styles.lastUpdated}>
-                آخر تحديث: {lastUpdated.toLocaleTimeString('ar-DZ')}
+                {t('lastUpdated')}: {lastUpdated.toLocaleTimeString(isRTL ? 'ar-DZ' : 'en-US')}
               </p>
             )}
           </div>
@@ -133,7 +163,7 @@ export default function FailurePredictionPage() {
             disabled={loading}
             className={styles.refreshButton}
           >
-            {loading ? '⏳ جاري التحليل...' : '🔄 تحديث التحليل'}
+            {loading ? `⏳ ${t('analyzing')}` : `🔄 ${t('refresh')}`}
           </button>
         </div>
 
@@ -141,9 +171,9 @@ export default function FailurePredictionPage() {
         {loading && (
           <div className={styles.loadingContainer}>
             <div className={styles.loadingIcon}>🤖</div>
-            <p className={styles.loadingTitle}>جاري تحليل بيانات الأصول...</p>
+            <p className={styles.loadingTitle}>{t('analyzingData')}</p>
             <p className={styles.loadingSubtitle}>
-              الذكاء الاصطناعي يفحص سجلات الصيانة وأوامر العمل
+              {t('analyzingSubtitle')}
             </p>
           </div>
         )}
@@ -175,7 +205,7 @@ export default function FailurePredictionPage() {
                     <div className={styles.statNumber} style={{ color: cfg.color }}>
                       {count}
                     </div>
-                    <div className={styles.statLabel}>{cfg.label}</div>
+                    <div className={styles.statLabel}>{getRiskLabel(level)}</div>
                   </div>
                 );
               })}
@@ -184,11 +214,11 @@ export default function FailurePredictionPage() {
             {/* Filter Tabs */}
             <div className={styles.filterTabs}>
               {[
-                { key: 'all', label: 'الكل' },
-                { key: 'critical', label: '🔴 حرج' },
-                { key: 'high', label: '🟠 عالي' },
-                { key: 'medium', label: '🟡 متوسط' },
-                { key: 'low', label: '🟢 منخفض' },
+                { key: 'all', label: t('all') },
+                { key: 'critical', label: `🔴 ${t('riskCritical')}` },
+                { key: 'high', label: `🟠 ${t('riskHigh')}` },
+                { key: 'medium', label: `🟡 ${t('riskMedium')}` },
+                { key: 'low', label: `🟢 ${t('riskLow')}` },
               ].map(f => (
                 <button
                   key={f.key}
@@ -204,7 +234,7 @@ export default function FailurePredictionPage() {
             {filtered.length === 0 ? (
               <div className={styles.emptyState}>
                 <div className={styles.emptyIcon}>📭</div>
-                <p>لا توجد أصول في هذه الفئة</p>
+                <p>{t('noAssetsInCategory')}</p>
               </div>
             ) : (
               <div className={styles.predictionsList}>
@@ -230,7 +260,7 @@ export default function FailurePredictionPage() {
                                   border: `1px solid ${cfg.border}` 
                                 }}
                               >
-                                {prediction.urgency}
+                                {getUrgencyLabel(prediction.urgency)}
                               </span>
                             </div>
                           </div>
@@ -238,7 +268,7 @@ export default function FailurePredictionPage() {
                             <div className={`${styles.riskPercentage} ${riskClass}`}>
                               {prediction.riskPercentage}%
                             </div>
-                            <div className={styles.riskLabel}>احتمال العطل</div>
+                            <div className={styles.riskLabel}>{t('failureProbability')}</div>
                           </div>
                         </div>
 
@@ -256,7 +286,7 @@ export default function FailurePredictionPage() {
                         <div className={styles.predictionContent}>
                           {/* Reasons */}
                           <div className={styles.reasonsSection}>
-                            <p className={styles.reasonsTitle}>⚠️ الأسباب</p>
+                            <p className={styles.reasonsTitle}>⚠️ {t('reasons')}</p>
                             <ul className={styles.reasonsList}>
                               {prediction.reasons.map((reason, i) => (
                                 <li key={i} className={styles.reasonItem}>
@@ -269,7 +299,7 @@ export default function FailurePredictionPage() {
                           
                           {/* Recommendation */}
                           <div className={styles.recommendationSection}>
-                            <p className={styles.recommendationTitle}>🔧 التوصية</p>
+                            <p className={styles.recommendationTitle}>🔧 {t('recommendation')}</p>
                             <p className={styles.recommendationText}>{prediction.recommendation}</p>
                           </div>
                         </div>
@@ -285,7 +315,7 @@ export default function FailurePredictionPage() {
         {!loading && !data && (
           <div className={styles.initialState}>
             <div className={styles.initialIcon}>🤖</div>
-            <p className={styles.initialText}>اضغط "تحديث التحليل" لبدء التنبؤ بالأعطال</p>
+            <p className={styles.initialText}>{t('clickToAnalyze')}</p>
           </div>
         )}
       </div>
